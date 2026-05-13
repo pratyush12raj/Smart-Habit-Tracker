@@ -35,7 +35,7 @@ const [page,setPage] = useState(
     async function signup(){
 
         const res = await fetch(
-            "https://smart-habit-tracker-backend-a4do.onrender.com/",
+            "https://smart-habit-tracker-backend-a4do.onrender.com/signup",
             {
                 method:"POST",
 
@@ -60,7 +60,7 @@ const [page,setPage] = useState(
     async function login(){
 
         const res = await fetch(
-            "https://smart-habit-tracker-backend-a4do.onrender.com/",
+            "https://smart-habit-tracker-backend-a4do.onrender.com/login",
             {
                 method:"POST",
 
