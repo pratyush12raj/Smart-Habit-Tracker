@@ -17,7 +17,11 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+app.get("/",(req,res)=>{
 
+    res.send("Backend Running 🚀")
+
+})
 
 // let users = []
 // app.post("/signup",(req,res)=>{
@@ -219,7 +223,15 @@ app.delete("/remove/:did",async(req,res)=>{
 })
 
 
-app.listen(4000,()=>{
-    console.log("server is running");
+// app.listen(4000,()=>{
+//     console.log("server is running");
     
+// })
+
+const PORT = process.env.PORT || 4000
+
+app.listen(PORT,()=>{
+
+    console.log(`server is running on ${PORT}`)
+
 })
