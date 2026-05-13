@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Habit Tracker</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gradient-to-r from-[#081224] to-[#1d3557] min-h-screen text-white">
+
+  <!-- AUTH SECTION -->
+  <div class="max-w-7xl mx-auto p-5 md:p-10">
+
+    <div class="grid md:grid-cols-2 gap-8 mb-12">
+
+      <!-- LOGIN -->
+      <div class="bg-[#10213f] rounded-[35px] overflow-hidden shadow-2xl">
+
+        <div class="bg-gradient-to-r from-orange-400 to-pink-500 h-40 rounded-b-[100px] flex flex-col items-center justify-center">
+          <h1 class="text-4xl font-bold">Welcome</h1>
+          <p class="text-sm mt-2 opacity-80">Sign in to continue</p>
+        </div>
+
+        <div class="p-8 space-y-5">
+          <input id="loginEmail" type="email" placeholder="Email"
+            class="w-full bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <input id="loginPassword" type="password" placeholder="Password"
+            class="w-full bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <button onclick="login()"
+            class="w-full bg-white text-black py-3 rounded-xl font-semibold hover:scale-105 transition">
+            Sign In
+          </button>
+        </div>
+      </div>
+
+
+      <!-- SIGNUP -->
+      <div class="bg-[#10213f] rounded-[35px] overflow-hidden shadow-2xl">
+
+        <div class="bg-gradient-to-r from-orange-400 to-pink-500 h-40 rounded-b-[100px] flex flex-col items-center justify-center">
+          <h1 class="text-4xl font-bold">Create Account</h1>
+          <p class="text-sm mt-2 opacity-80">Join the productivity journey</p>
+        </div>
+
+        <div class="p-8 space-y-5">
+          <input id="signupName" type="text" placeholder="Name"
+            class="w-full bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <input id="signupEmail" type="email" placeholder="Email"
+            class="w-full bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <input id="signupPassword" type="password" placeholder="Password"
+            class="w-full bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <button onclick="signup()"
+            class="w-full bg-white text-black py-3 rounded-xl font-semibold hover:scale-105 transition">
+            Create Account
+          </button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- DASHBOARD -->
+    <div class="bg-[#10213f] rounded-[35px] p-5 md:p-10 shadow-2xl">
+
+      <!-- TOP -->
+      <div class="flex flex-col md:flex-row justify-between items-center gap-5 mb-10">
+
+        <div>
+          <h1 class="text-4xl font-bold">Habit Dashboard 🔥</h1>
+          <p class="text-gray-300 mt-2">Track your daily progress</p>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-3 w-full md:w-auto">
+          <input id="habitTitle" type="text" placeholder="Habit Title"
+            class="bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <input id="habitCategory" type="text" placeholder="Category"
+            class="bg-transparent border border-gray-500 rounded-xl px-4 py-3 outline-none">
+
+          <button onclick="createHabit()"
+            class="bg-gradient-to-r from-orange-400 to-pink-500 px-6 py-3 rounded-xl font-semibold hover:scale-105 transition">
+            Add Habit
+          </button>
+        </div>
+      </div>
+
+
+      <!-- STATS -->
+      <div class="grid md:grid-cols-3 gap-6 mb-10">
+
+        <div class="bg-[#172a4d] rounded-3xl p-6 shadow-lg">
+          <h2 class="text-gray-300">Total Habits</h2>
+          <p id="totalHabits" class="text-5xl font-bold mt-4">0</p>
+        </div>
+
+        <div class="bg-[#172a4d] rounded-3xl p-6 shadow-lg">
+          <h2 class="text-gray-300">Completed Logs</h2>
+          <p id="totalLogs" class="text-5xl font-bold mt-4">0</p>
+        </div>
+
+        <div class="bg-[#172a4d] rounded-3xl p-6 shadow-lg">
+          <h2 class="text-gray-300">Best Streak</h2>
+          <p id="bestStreak" class="text-5xl font-bold mt-4">0🔥</p>
+        </div>
+      </div>
+
+
+      <!-- HABITS -->
+      <div>
+        <h2 class="text-3xl font-bold mb-6">Your Habits</h2>
+
+        <div id="habitContainer" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      </div>
+
+
+      <!-- CHARTS -->
+      <div class="grid md:grid-cols-2 gap-8 mt-14">
+
+        <div class="bg-[#172a4d] p-8 rounded-3xl shadow-xl">
+          <h2 class="text-2xl font-bold mb-6">Completion Analytics</h2>
+          <canvas id="pieChart"></canvas>
+        </div>
+
+
+        <div class="bg-[#172a4d] p-8 rounded-3xl shadow-xl">
+          <h2 class="text-2xl font-bold mb-6">Weekly Activity</h2>
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+
+    const API = "http://localhost:4000";
+
+
+    // SIGNUP
+    async function signup() {
+      const name = document.getElementById("signupName").value;
+      const email = document.getElementById("signupEmail").value;
+      const password = document.getElementById("signupPassword").value;
+
+      const res = await fetch(`${API}/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+    }
+
+
+    // LOGIN
+    async function login() {
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+
+      const res = await fetch(`${API}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+    }
+
+
+    // CREATE HABIT
+    async function createHabit() {
+      const title = document.getElementById("habitTitle").value;
+      const category = document.getElementById("habitCategory").value;
+
+      const res = await fetch(`${API}/create-habit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ title, category })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      loadHabits();
+    }
+
+
+    // LOAD HABITS
+    async function loadHabits() {
+      const res = await fetch(`${API}/get-habit`);
+      const habits = await res.json();
+
+      document.getElementById("totalHabits").innerText = habits.length;
+
+      const container = document.getElementById("habitContainer");
+      container.innerHTML = "";
+
+      habits.forEach(async habit => {
+
+        let streak = 0;
+
+        try {
+          const streakRes = await fetch(`${API}/streak/${habit._id}`);
+          const streakData = await streakRes.json();
+          streak = streakData.obj || 0;
+        } catch (err) {}
+
+
+        container.innerHTML += `
+
+        <div class="bg-[#172a4d] rounded-3xl p-6 shadow-xl hover:scale-[1.02] transition">
+
+          <div class="flex justify-between items-center">
+            <h3 class="text-2xl font-bold">${habit.title}</h3>
+
+            <span class="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm">
+              ${habit.category}
+            </span>
+          </div>
+
+          <p class="text-gray-400 mt-4">Current Streak: ${streak}🔥</p>
+
+          <div class="flex gap-3 mt-6">
+
+            <button onclick="markHabit('${habit._id}')"
+              class="flex-1 bg-gradient-to-r from-orange-400 to-pink-500 py-3 rounded-xl font-semibold hover:scale-105 transition">
+              Done ✅
+            </button>
+
+            <button onclick="deleteHabit('${habit._id}')"
+              class="bg-red-500 px-4 rounded-xl hover:scale-105 transition">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        `;
+      });
+    }
+
+
+    // MARK HABIT
+    async function markHabit(id) {
+
+      const res = await fetch(`${API}/mark`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ did: id })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+
+      loadHabits();
+      loadLogs();
+    }
+
+
+    // DELETE HABIT
+    async function deleteHabit(id) {
+
+      await fetch(`${API}/remove/${id}`, {
+        method: "DELETE"
+      });
+
+      loadHabits();
+      loadLogs();
+    }
+
+
+    // LOAD LOGS
+    async function loadLogs() {
+
+      const res = await fetch(`${API}/logs`);
+      const logs = await res.json();
+
+      document.getElementById("totalLogs").innerText = logs.length;
+      document.getElementById("bestStreak").innerText = logs.length + "🔥";
+
+      createCharts(logs.length);
+    }
+
+
+    // CHARTS
+    function createCharts(total) {
+
+      const completed = total;
+      const missed = 30 - total;
+
+
+      // PIE
+      new Chart(document.getElementById('pieChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Completed', 'Missed'],
+          datasets: [{
+            data: [completed, missed],
+            backgroundColor: ['#fb923c', '#334155']
+          }]
+        }
+      });
+
+
+      // BAR
+      new Chart(document.getElementById('barChart'), {
+        type: 'bar',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Habits',
+            data: [3, 4, 5, 2, 6, 4, 5],
+            backgroundColor: '#fb923c'
+          }]
+        }
+      });
+    }
+
+
+    loadHabits();
+    loadLogs();
+
+  </script>
+</body>
+</html>
