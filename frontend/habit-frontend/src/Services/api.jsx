@@ -1,5 +1,5 @@
 
-const API = "http://localhost:4000"
+const API = "https://smart-habit-tracker-backend-a4do.onrender.com"
 
 export async function getHabits(userId){
 
